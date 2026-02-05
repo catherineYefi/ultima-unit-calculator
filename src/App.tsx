@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { subscriptionTemplate } from './templates';
 import { calculate } from './engine';
-import { CalculationResult, CalculationError } from './engine/types';
+import type { CalculationResult, CalculationError } from './engine/types';
+
+interface SubscriptionInputs {
+  arpu: number;
+  variable_cost: number;
+  cac: number;
+  avg_lifetime_months?: number;
+  churn_rate?: number;
+  fot_monthly?: number;
+  current_clients?: number;
+}
 
 function App() {
-  const [inputs, setInputs] = useState<Record<string, number>>({
+  const [inputs, setInputs] = useState<SubscriptionInputs>({
     arpu: 5000,
     variable_cost: 1500,
     cac: 3000,
@@ -17,28 +27,25 @@ function App() {
     const numValue = parseFloat(value);
     setInputs(prev => ({
       ...prev,
-      [id]: isNaN(numValue) ? 0 : numValue
+      [id]: isNaN(numValue) ? undefined : numValue
     }));
   };
 
   const handleCalculate = () => {
-    // Валидация
-    const validation = subscriptionTemplate.validate(inputs);
+    const validation = subscriptionTemplate.validate(inputs as any);
     
     if (!validation.success) {
       alert('Ошибка валидации: ' + validation.error.errors[0].message);
       return;
     }
 
-    // Нормализация
-    const normalized = subscriptionTemplate.normalize(inputs);
+    const normalized = subscriptionTemplate.normalize(inputs as any);
     
     if ('error' in normalized) {
       setResult(normalized);
       return;
     }
 
-    // Расчет
     const calcResult = calculate(normalized);
     setResult(calcResult);
   };
@@ -50,7 +57,6 @@ function App() {
           Калькулятор Юнит-Экономики ULTIMA
         </h1>
 
-        {/* Template Info */}
         <div className="card mb-6">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-4xl">{subscriptionTemplate.icon}</span>
@@ -61,7 +67,6 @@ function App() {
           </div>
         </div>
 
-        {/* Input Form */}
         <div className="card mb-6">
           <h3 className="text-lg font-semibold mb-4">Введите данные</h3>
           
@@ -76,7 +81,7 @@ function App() {
                   <input
                     type="number"
                     className="input"
-                    value={inputs[field.id] || ''}
+                    value={inputs[field.id as keyof SubscriptionInputs] || ''}
                     onChange={(e) => handleInputChange(field.id, e.target.value)}
                     placeholder={field.tooltip}
                     min={field.min}
@@ -101,7 +106,6 @@ function App() {
           </button>
         </div>
 
-        {/* Results */}
         {result && (
           <div className="space-y-4">
             {'error' in result ? (
@@ -110,7 +114,6 @@ function App() {
               </div>
             ) : (
               <>
-                {/* Verdict */}
                 <div className={`card ${
                   result.verdict.status === 'healthy' ? 'bg-green-50 border-green-200' :
                   result.verdict.status === 'warning' ? 'bg-yellow-50 border-yellow-200' :
@@ -124,7 +127,6 @@ function App() {
                   </h3>
                 </div>
 
-                {/* Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="card">
                     <h4 className="text-sm text-gray-600 mb-1">Contribution Margin</h4>
@@ -180,7 +182,6 @@ function App() {
                   )}
                 </div>
 
-                {/* Flags */}
                 {result.flags.length > 0 && (
                   <div className="card">
                     <h3 className="text-lg font-semibold mb-3">Рекомендации</h3>

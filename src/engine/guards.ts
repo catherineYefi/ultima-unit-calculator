@@ -1,13 +1,6 @@
-import { NormalizedInputs, CalculationError } from './types';
+import type { NormalizedInputs, CalculationError } from './types';
 
-// ============================================================================
-// GUARDS - Проверки перед расчетом
-// ============================================================================
-
-export function guardNegativeCM(
-  CM: number,
-  revenue: number
-): CalculationError | null {
+export function guardNegativeCM(CM: number): CalculationError | null {
   if (CM <= 0) {
     return {
       error: true,
@@ -17,9 +10,7 @@ export function guardNegativeCM(
   return null;
 }
 
-export function guardMissingLifetime(
-  lifetime: number | undefined
-): CalculationError | null {
+export function guardMissingLifetime(lifetime: number | undefined): CalculationError | null {
   if (!lifetime) {
     return {
       error: true,
@@ -44,7 +35,7 @@ export function runGuards(inputs: NormalizedInputs): CalculationError | null {
   if (cacCheck) return cacCheck;
   
   const CM = inputs.revenue - inputs.variableCost;
-  const cmCheck = guardNegativeCM(CM, inputs.revenue);
+  const cmCheck = guardNegativeCM(CM);
   if (cmCheck) return cmCheck;
   
   return null;

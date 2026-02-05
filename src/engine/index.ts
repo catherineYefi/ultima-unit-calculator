@@ -1,9 +1,8 @@
-import {
+import type {
   NormalizedInputs,
   CalculationResult,
   CalculationError,
   Metrics,
-  SubscriptionNormalizedInputs,
 } from './types';
 import {
   calculateCM,
@@ -18,22 +17,13 @@ import { formatMoney, formatPercent, formatRatio, formatPayback } from './format
 import { generateFlags } from './flags';
 import { generateVerdict } from './verdict';
 
-// ============================================================================
-// MAIN CALCULATOR
-// ============================================================================
-
-export function calculate(
-  inputs: NormalizedInputs
-): CalculationResult | CalculationError {
-  // 1. Guards
+export function calculate(inputs: NormalizedInputs): CalculationResult | CalculationError {
   const guardError = runGuards(inputs);
   if (guardError) return guardError;
 
-  // 2. Calculate CM
   const CM = calculateCM(inputs);
   const CMPercent = calculateCMPercent(CM, inputs.revenue);
 
-  // 3. Build metrics
   const metrics: Metrics = {
     contributionMargin: {
       value: Math.round(CM),
@@ -47,7 +37,6 @@ export function calculate(
     },
   };
 
-  // 4. LTV (if applicable)
   if (inputs.lifetime) {
     const ltv = calculateLTV(CM, inputs.lifetime);
     const ltvCacRatio = calculateLTVCACRatio(ltv, inputs.cac);
@@ -60,17 +49,11 @@ export function calculate(
 
     metrics.ltvCacRatio = {
       value: parseFloat(ltvCacRatio.toFixed(2)),
-      benchmark:
-        ltvCacRatio > 5
-          ? 'Отлично'
-          : ltvCacRatio > 3
-          ? 'Хорошо'
-          : 'Ниже нормы',
+      benchmark: ltvCacRatio > 5 ? 'Отлично' : ltvCacRatio > 3 ? 'Хорошо' : 'Ниже нормы',
       formatted: formatRatio(ltvCacRatio),
     };
   }
 
-  // 5. Payback
   const paybackValue = calculatePayback(inputs.cac, CM);
   
   let paybackMonths: number | undefined;
@@ -111,19 +94,11 @@ export function calculate(
     value: parseFloat(paybackValue.toFixed(2)),
     months: paybackMonths ? parseFloat(paybackMonths.toFixed(2)) : undefined,
     unit: paybackUnit,
-    benchmark:
-      paybackMonths
-        ? paybackMonths < 6
-          ? 'Быстро'
-          : paybackMonths < 12
-          ? 'Норма'
-          : 'Долго'
-        : paybackValue < 2
-        ? 'Быстро'
-        : 'Медленно',
+    benchmark: paybackMonths
+      ? paybackMonths < 6 ? 'Быстро' : paybackMonths < 12 ? 'Норма' : 'Долго'
+      : paybackValue < 2 ? 'Быстро' : 'Медленно',
   };
 
-  // 6. Break-even
   if (inputs.fixedCostsMonthly) {
     const unitsNeeded = calculateBreakEven(inputs.fixedCostsMonthly, CM);
     
@@ -139,15 +114,8 @@ export function calculate(
     };
   }
 
-  // 7. Flags
   const flags = generateFlags(inputs, metrics);
-
-  // 8. Verdict
   const verdict = generateVerdict(metrics, flags);
 
-  return {
-    metrics,
-    flags,
-    verdict,
-  };
+  return { metrics, flags, verdict };
 }

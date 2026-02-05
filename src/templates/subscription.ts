@@ -1,10 +1,6 @@
 import { z } from 'zod';
-import { Template, Field } from './types';
-import { SubscriptionNormalizedInputs, CalculationError } from '@/engine/types';
-
-// ============================================================================
-// SUBSCRIPTION RAW INPUTS
-// ============================================================================
+import type { Template, Field } from './types';
+import type { SubscriptionNormalizedInputs, CalculationError } from '../engine/types';
 
 interface SubscriptionRawInputs {
   arpu: number;
@@ -15,10 +11,6 @@ interface SubscriptionRawInputs {
   fot_monthly?: number;
   current_clients?: number;
 }
-
-// ============================================================================
-// VALIDATION SCHEMA
-// ============================================================================
 
 const subscriptionSchema = z
   .object({
@@ -34,10 +26,6 @@ const subscriptionSchema = z
     message: 'Укажите либо средний срок жизни, либо Churn rate',
     path: ['avg_lifetime_months'],
   });
-
-// ============================================================================
-// FIELDS
-// ============================================================================
 
 const fields: Field[] = [
   {
@@ -99,16 +87,7 @@ const fields: Field[] = [
   },
 ];
 
-// ============================================================================
-// NORMALIZE
-// ============================================================================
-
-function normalize(
-  inputs: SubscriptionRawInputs
-): SubscriptionNormalizedInputs | CalculationError {
-  // Валидация уже прошла в validate()
-  
-  // Определяем lifetime
+function normalize(inputs: SubscriptionRawInputs): SubscriptionNormalizedInputs | CalculationError {
   let lifetime: number;
   let originalLifetime: number | undefined;
   
@@ -118,10 +97,8 @@ function normalize(
   } else if (inputs.churn_rate != null && inputs.churn_rate > 0) {
     lifetime = 1 / (inputs.churn_rate / 100);
   } else if (inputs.churn_rate === 0) {
-    // Churn = 0 → клиенты не уходят → cap at 60
     lifetime = 60;
   } else {
-    // Не должно произойти из-за валидации
     return {
       error: true,
       message: 'Укажите либо средний срок жизни, либо Churn rate',
@@ -141,10 +118,6 @@ function normalize(
     currentVolume: inputs.current_clients,
   };
 }
-
-// ============================================================================
-// TEMPLATE
-// ============================================================================
 
 export const subscriptionTemplate: Template<SubscriptionRawInputs> = {
   id: 'subscription',

@@ -1,158 +1,56 @@
-// ============================================================================
-// BASE TYPES
-// ============================================================================
+import type { z } from 'zod';
+import type { 
+  TemplateId, 
+  RawInputs, 
+  NormalizedInputs, 
+  CalculationError 
+} from '../engine/types';
 
-export type TemplateId = 
-  | 'subscription' 
-  | 'one_time_sales' 
-  | 'projects' 
-  | 'commission'
-  | 'custom';
+export type FieldType = 'number' | 'percentage' | 'select';
 
-export type UnitType = 
-  | 'subscription'  // месяцы
-  | 'transaction'   // покупки
-  | 'project'       // проекты
-  | 'deal';         // сделки
-
-export type Severity = 'info' | 'warning' | 'critical';
-export type VerdictStatus = 'healthy' | 'warning' | 'critical';
-
-// ============================================================================
-// INPUTS
-// ============================================================================
-
-export type RawInputs = Record<string, number | string | undefined>;
-
-export interface BaseNormalizedInputs {
-  revenue: number;
-  variableCost: number;
-  cac: number;
-  
-  lifetime?: number;
-  repeatFrequency?: number;
-  
-  parallelUnits?: number;
-  durationDays?: number;
-  
-  fixedCostsMonthly?: number;
-  currentVolume?: number;
-  
-  templateId: TemplateId;
-  unitType: UnitType;
+export interface FieldOption {
+  value: string;
+  label: string;
 }
 
-export interface SubscriptionNormalizedInputs extends BaseNormalizedInputs {
-  templateId: 'subscription';
-  unitType: 'subscription';
-  churnRate?: number;
-  originalLifetime?: number;
-}
-
-export interface OneTimeNormalizedInputs extends BaseNormalizedInputs {
-  templateId: 'one_time_sales';
-  unitType: 'transaction';
-}
-
-export interface ProjectsNormalizedInputs extends BaseNormalizedInputs {
-  templateId: 'projects';
-  unitType: 'project';
-}
-
-export interface CommissionNormalizedInputs extends BaseNormalizedInputs {
-  templateId: 'commission';
-  unitType: 'deal';
-  commissionPercent: number;
-  avgDealSize: number;
-}
-
-export type NormalizedInputs = 
-  | SubscriptionNormalizedInputs
-  | OneTimeNormalizedInputs
-  | ProjectsNormalizedInputs
-  | CommissionNormalizedInputs;
-
-// ============================================================================
-// OUTPUTS
-// ============================================================================
-
-export interface ContributionMarginMetric {
-  value: number;
-  percent: number;
-  formatted: string;
-}
-
-export interface LTVMetric {
-  value: number;
-  formula: string;
-  formatted: string;
-}
-
-export interface LTVCACMetric {
-  value: number;
-  benchmark: string;
-  formatted: string;
-}
-
-export interface PaybackMetric {
-  value: number;
-  months?: number;
-  unit: string;
-  benchmark: string;
-}
-
-export interface BreakEvenMetric {
-  unitsNeeded: number;
-  currentVolume?: number;
-  gap?: number;
-  status: string;
-}
-
-export interface Metrics {
-  contributionMargin: ContributionMarginMetric;
-  ltv?: LTVMetric;
-  ltvCacRatio?: LTVCACMetric;
-  payback: PaybackMetric;
-  breakEven?: BreakEvenMetric;
-  
-  [key: string]: any;
-}
-
-export interface Flag {
-  severity: Severity;
-  message: string;
-  recommendation: string;
-}
-
-export interface Verdict {
-  status: VerdictStatus;
-  message: string;
-}
-
-export interface CalculationResult {
-  metrics: Metrics;
-  flags: Flag[];
-  verdict: Verdict;
-}
-
-export interface CalculationError {
-  error: true;
-  message: string;
-  field?: string;
-}
-
-// ============================================================================
-// SCENARIO
-// ============================================================================
-
-export interface ScenarioOverride {
-  field: string;
-  value: number;
-  operator: 'set' | 'multiply' | 'add';
-}
-
-export interface Scenario {
+export interface Field {
   id: string;
-  name: string;
-  overrides: ScenarioOverride[];
+  label: string;
+  type: FieldType;
+  unit?: string;
+  required: boolean;
+  tooltip: string;
+  min?: number;
+  max?: number;
+  defaultValue?: number;
+  options?: FieldOption[];
+  dependsOn?: string;
 }
+
+export interface TemplateCalculationConfig {
+  contributionMargin: boolean;
+  ltv: boolean;
+  payback: boolean;
+  breakEven: boolean;
+}
+
+export interface Template<T extends RawInputs = RawInputs> {
+  id: TemplateId;
+  name: string;
+  description: string;
+  icon: string;
+  
+  fields: Field[];
+  
+  validate: (inputs: T) => z.SafeParseReturnType<T, T>;
+  
+  normalize: (inputs: T) => NormalizedInputs | CalculationError;
+  
+  calculations: TemplateCalculationConfig;
+  
+  customMetrics?: (normalized: NormalizedInputs) => Record<string, any>;
+}
+
+export type TemplateRegistry = {
+  [K in TemplateId]?: Template;
+};
