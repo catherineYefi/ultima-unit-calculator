@@ -57,7 +57,7 @@ export function calculate(inputs: NormalizedInputs): CalculationResult | Calcula
   const paybackValue = calculatePayback(inputs.cac, CM);
   
   let paybackMonths: number | undefined;
-  let paybackUnit: string;
+  let paybackUnit: string = formatPayback(paybackValue, 'months');
   
   switch (inputs.unitType) {
     case 'subscription':

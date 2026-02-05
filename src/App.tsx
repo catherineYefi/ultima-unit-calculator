@@ -35,7 +35,7 @@ function App() {
     const validation = subscriptionTemplate.validate(inputs as any);
     
     if (!validation.success) {
-      alert('Ошибка валидации: ' + validation.error.errors[0].message);
+      alert('Ошибка валидации: ' + validation.error.issues[0].message);
       return;
     }
 
@@ -186,7 +186,7 @@ function App() {
                   <div className="card">
                     <h3 className="text-lg font-semibold mb-3">Рекомендации</h3>
                     <div className="space-y-3">
-                      {result.flags.map((flag, idx) => (
+                      {result.flags.map((flag: any, idx: number) => (
                         <div
                           key={idx}
                           className={`p-3 rounded-lg ${

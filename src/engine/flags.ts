@@ -97,6 +97,7 @@ export function generateFlags(inputs: NormalizedInputs, metrics: Metrics): Flag[
   for (const rule of universalFlags) {
     if (rule.check(inputs, metrics)) {
       flags.push({
+        id: rule.id,
         severity: rule.severity,
         message: rule.message,
         recommendation: rule.recommendation
@@ -108,6 +109,7 @@ export function generateFlags(inputs: NormalizedInputs, metrics: Metrics): Flag[
   for (const rule of specificFlags) {
     if (rule.check(inputs, metrics)) {
       flags.push({
+        id: rule.id,
         severity: rule.severity,
         message: rule.message,
         recommendation: rule.recommendation
