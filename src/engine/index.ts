@@ -47,9 +47,18 @@ export function calculate(inputs: NormalizedInputs): CalculationResult | Calcula
       formatted: formatMoney(ltv),
     };
 
+    // ✅ ИСПРАВЛЕНО: Правильный benchmark с индикацией убыточности
     metrics.ltvCacRatio = {
       value: parseFloat(ltvCacRatio.toFixed(2)),
-      benchmark: ltvCacRatio > 5 ? 'Отлично' : ltvCacRatio > 3 ? 'Хорошо' : 'Ниже нормы',
+      benchmark: ltvCacRatio < 1 
+        ? '🚨 УБЫТОК! LTV < CAC'
+        : ltvCacRatio < 2 
+          ? 'Критично' 
+          : ltvCacRatio < 3 
+            ? 'Ниже нормы' 
+            : ltvCacRatio < 5 
+              ? 'Хорошо' 
+              : 'Отлично',
       formatted: formatRatio(ltvCacRatio),
     };
   }
