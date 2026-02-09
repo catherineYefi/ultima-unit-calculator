@@ -82,7 +82,7 @@ const fields: Field[] = [
   },
 ];
 
-function normalize(inputs: ProjectsRawInputs): NormalizedInputs | CalculationError {
+function normalize(inputs: any): NormalizedInputs | CalculationError {
   // Capacity в месяц = (30 дней / длительность одного проекта) * количество параллельных
   const projectsPerMonth = (30 / inputs.project_duration_days) * inputs.parallel_projects;
   
@@ -104,14 +104,14 @@ function normalize(inputs: ProjectsRawInputs): NormalizedInputs | CalculationErr
   };
 }
 
-export const projectsTemplate: Template<ProjectsRawInputs> = {
+export const projectsTemplate: Template = {
   id: 'project',
   name: 'Projects / Проектная работа',
   description: 'Для агентств, консалтинга, дизайна, разработки',
   icon: '📊',
   
   fields,
-  validate: (inputs) => projectsSchema.safeParse(inputs),
+  validate: (inputs: any) => projectsSchema.safeParse(inputs),
   normalize,
   
   calculations: {

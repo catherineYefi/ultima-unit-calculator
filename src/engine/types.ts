@@ -1,7 +1,9 @@
 import type { z } from 'zod';
 
-// Helper type for Zod validation result
-export type ZodValidationResult<T> = { success: true; data: T } | { success: false; error: z.ZodError<T> };
+// Helper type for Zod validation result (compatible with Zod 4.x SafeParseReturnType)
+export type ZodValidationResult<T> = 
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error: z.ZodError<T> };
 
 // ============================================================================
 // TEMPLATE IDENTIFIERS AND INPUT TYPES
@@ -139,7 +141,7 @@ export interface Template<T extends RawInputs = RawInputs> {
   
   fields: Field[];
   
-  validate: (inputs: T) => ZodValidationResult<T>;
+  validate: (inputs: T) => any;  // Принимаем любой результат валидации Zod
   
   normalize: (inputs: T) => NormalizedInputs | CalculationError;
   

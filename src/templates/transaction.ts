@@ -71,7 +71,7 @@ const fields: Field[] = [
   },
 ];
 
-function normalize(inputs: TransactionRawInputs): NormalizedInputs | CalculationError {
+function normalize(inputs: any): NormalizedInputs | CalculationError {
   // Для транзакционной модели lifetime считаем в годах
   // Если клиент покупает 6 раз в год, то за год он принесет выручку
   const lifetimeMonths = 12;
@@ -89,14 +89,14 @@ function normalize(inputs: TransactionRawInputs): NormalizedInputs | Calculation
   };
 }
 
-export const transactionTemplate: Template<TransactionRawInputs> = {
+export const transactionTemplate: Template = {
   id: 'transaction',
   name: 'Transaction / Разовые продажи',
   description: 'Для маркетплейсов, e-commerce, розницы с повторными покупками',
   icon: '💰',
   
   fields,
-  validate: (inputs) => transactionSchema.safeParse(inputs),
+  validate: (inputs: any) => transactionSchema.safeParse(inputs),
   normalize,
   
   calculations: {

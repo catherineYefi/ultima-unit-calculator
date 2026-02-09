@@ -22,10 +22,13 @@ const subscriptionSchema = z
     fot_monthly: z.number().min(0).optional(),
     current_clients: z.number().int().min(0).optional(),
   })
-  .refine((data) => data.avg_lifetime_months || data.churn_rate != null, {
-    message: 'Укажите либо средний срок жизни, либо Churn rate',
-    path: ['avg_lifetime_months'],
-  });
+  .refine(
+    (data) => data.avg_lifetime_months || data.churn_rate != null,
+    {
+      message: 'Укажите либо средний срок жизни, либо Churn rate',
+      path: ['avg_lifetime_months'],
+    }
+  );
 
 const fields: Field[] = [
   {
@@ -87,7 +90,7 @@ const fields: Field[] = [
   },
 ];
 
-function normalize(inputs: SubscriptionRawInputs): SubscriptionNormalizedInputs | CalculationError {
+function normalize(inputs: any): SubscriptionNormalizedInputs | CalculationError {
   let lifetime: number;
   let originalLifetime: number | undefined;
   
@@ -119,7 +122,7 @@ function normalize(inputs: SubscriptionRawInputs): SubscriptionNormalizedInputs 
   };
 }
 
-export const subscriptionTemplate: Template<SubscriptionRawInputs> = {
+export const subscriptionTemplate: Template = {
   id: 'subscription',
   name: 'Subscription / Абонементы',
   description: 'Для фитнеса, онлайн-школ, SaaS, клубов',
@@ -127,7 +130,7 @@ export const subscriptionTemplate: Template<SubscriptionRawInputs> = {
   
   fields,
   
-  validate: (inputs) => subscriptionSchema.safeParse(inputs),
+  validate: (inputs: any) => subscriptionSchema.safeParse(inputs),
   
   normalize,
   
