@@ -22,8 +22,9 @@ export interface NormalizedInputs {
   currentVolume?: number;
   unitType: TemplateId;
   templateId: TemplateId;
-  repeatFrequency?: number;
-  durationDays?: number;
+  repeatFrequency?: number;      // Для transaction: сколько раз в год покупает
+  durationDays?: number;          // Для projects: длительность проекта в днях
+  parallelUnits?: number;         // Для projects: количество параллельных проектов
 }
 
 export interface SubscriptionNormalizedInputs extends NormalizedInputs {

@@ -1,9 +1,5 @@
-import { TemplateRegistry } from './types';
-import { subscriptionTemplate } from './subscription';
+export { subscriptionTemplate } from './subscription';
+export { transactionTemplate } from './transaction';
+export { projectsTemplate } from './projects';
 
-export const templates: TemplateRegistry = {
-  subscription: subscriptionTemplate,
-  // Остальные шаблоны добавим позже
-};
-
-export { subscriptionTemplate };
+export type { Template, Field } from './types';

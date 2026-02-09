@@ -1,27 +1,35 @@
 import { useState } from 'react';
-import { subscriptionTemplate } from './templates';
+import { subscriptionTemplate, transactionTemplate, projectsTemplate } from './templates';
+import type { Template } from './templates';
+import { TemplateSelector } from './ui/TemplateSelector';
 import { calculate } from './engine';
 import type { CalculationResult, CalculationError } from './engine/types';
 
-interface SubscriptionInputs {
-  arpu: number;
-  variable_cost: number;
-  cac: number;
-  avg_lifetime_months?: number;
-  churn_rate?: number;
-  fot_monthly?: number;
-  current_clients?: number;
-}
+// Реестр всех доступных шаблонов
+const templates: Template[] = [
+  subscriptionTemplate,
+  transactionTemplate,
+  projectsTemplate,
+];
 
 function App() {
-  const [inputs, setInputs] = useState<SubscriptionInputs>({
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('subscription');
+  const [inputs, setInputs] = useState<Record<string, any>>({
     arpu: 5000,
     variable_cost: 1500,
     cac: 3000,
     avg_lifetime_months: 12,
   });
-
   const [result, setResult] = useState<CalculationResult | CalculationError | null>(null);
+
+  const currentTemplate = templates.find(t => t.id === selectedTemplateId)!;
+
+  const handleTemplateChange = (id: string) => {
+    setSelectedTemplateId(id);
+    // Сбрасываем форму при смене шаблона
+    setInputs({});
+    setResult(null);
+  };
 
   const handleInputChange = (id: string, value: string) => {
     const numValue = parseFloat(value);
@@ -32,14 +40,14 @@ function App() {
   };
 
   const handleCalculate = () => {
-    const validation = subscriptionTemplate.validate(inputs as any);
+    const validation = currentTemplate.validate(inputs as any);
     
     if (!validation.success) {
       alert('Ошибка валидации: ' + validation.error.issues[0].message);
       return;
     }
 
-    const normalized = subscriptionTemplate.normalize(inputs as any);
+    const normalized = currentTemplate.normalize(inputs as any);
     
     if ('error' in normalized) {
       setResult(normalized);
@@ -57,21 +65,19 @@ function App() {
           Калькулятор Юнит-Экономики ULTIMA
         </h1>
 
-        <div className="card mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-4xl">{subscriptionTemplate.icon}</span>
-            <div>
-              <h2 className="text-xl font-semibold">{subscriptionTemplate.name}</h2>
-              <p className="text-gray-600">{subscriptionTemplate.description}</p>
-            </div>
-          </div>
-        </div>
+        {/* Template Selector */}
+        <TemplateSelector
+          templates={templates}
+          selected={selectedTemplateId}
+          onChange={handleTemplateChange}
+        />
 
+        {/* Input Form */}
         <div className="card mb-6">
           <h3 className="text-lg font-semibold mb-4">Введите данные</h3>
           
           <div className="space-y-4">
-            {subscriptionTemplate.fields.map(field => (
+            {currentTemplate.fields.map(field => (
               <div key={field.id}>
                 <label className="label">
                   {field.label}
@@ -81,7 +87,7 @@ function App() {
                   <input
                     type="number"
                     className="input"
-                    value={inputs[field.id as keyof SubscriptionInputs] || ''}
+                    value={inputs[field.id] || ''}
                     onChange={(e) => handleInputChange(field.id, e.target.value)}
                     placeholder={field.tooltip}
                     min={field.min}
@@ -106,6 +112,7 @@ function App() {
           </button>
         </div>
 
+        {/* Results */}
         {result && (
           <div className="space-y-4">
             {'error' in result ? (
