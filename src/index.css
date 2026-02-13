@@ -3,29 +3,164 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --primary-50: 239 246 255;
+    --primary-100: 219 234 254;
+    --primary-200: 191 219 254;
+    --primary-300: 147 197 253;
+    --primary-400: 96 165 250;
+    --primary-500: 59 130 246;
+    --primary-600: 37 99 235;
+    --primary-700: 29 78 216;
+    --primary-800: 30 64 175;
+    --primary-900: 30 58 138;
+  }
+  
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 }
 
 @layer components {
+  /* Premium Card with Glassmorphism */
+  .card-premium {
+    @apply bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-100/50 p-8;
+    background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+  }
+
+  /* Standard Card */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-white rounded-2xl shadow-md border border-gray-100 p-6;
   }
-  
-  .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+
+  /* Premium Input */
+  .input-premium {
+    @apply w-full px-4 py-3 
+           bg-white/50 backdrop-blur-sm
+           border-2 border-gray-200 rounded-xl 
+           text-gray-900 placeholder-gray-400
+           transition-all duration-200
+           focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500
+           hover:border-gray-300;
+    font-variant-numeric: tabular-nums;
   }
-  
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  
+
+  /* Standard Input */
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-4 py-2.5 
+           bg-white border border-gray-300 rounded-lg 
+           text-gray-900 placeholder-gray-400
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   }
-  
+
+  /* Label */
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-semibold text-gray-700 mb-2;
   }
+
+  /* Premium Button */
+  .btn-premium {
+    @apply px-8 py-4 
+           bg-gradient-to-r from-primary-600 to-primary-700
+           text-white font-semibold rounded-xl
+           shadow-lg shadow-primary-500/30
+           hover:shadow-xl hover:shadow-primary-500/40 hover:scale-105
+           active:scale-95
+           transition-all duration-200
+           focus:outline-none focus:ring-4 focus:ring-primary-500/50;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply px-6 py-3 
+           bg-primary-600 hover:bg-primary-700 
+           text-white font-medium rounded-lg
+           shadow-md hover:shadow-lg
+           transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-500;
+  }
+
+  /* Metric Card */
+  .metric-card {
+    @apply relative overflow-hidden
+           bg-gradient-to-br from-white to-gray-50/50
+           border border-gray-200 rounded-2xl p-6
+           shadow-md hover:shadow-lg
+           transition-all duration-300;
+  }
+
+  .metric-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1 
+           bg-gradient-to-r from-primary-500 to-primary-600;
+  }
+
+  /* Status Colors */
+  .status-healthy {
+    @apply bg-gradient-to-br from-green-50 to-emerald-50/50 
+           border-green-200 text-green-900;
+  }
+
+  .status-warning {
+    @apply bg-gradient-to-br from-yellow-50 to-amber-50/50 
+           border-yellow-200 text-yellow-900;
+  }
+
+  .status-critical {
+    @apply bg-gradient-to-br from-red-50 to-rose-50/50 
+           border-red-200 text-red-900;
+  }
+
+  /* Flag Card */
+  .flag-card {
+    @apply p-4 rounded-xl border-l-4 
+           backdrop-blur-sm
+           transition-all duration-200
+           hover:shadow-md;
+  }
+
+  .flag-critical {
+    @apply bg-red-50/80 border-red-500 text-red-900;
+  }
+
+  .flag-warning {
+    @apply bg-yellow-50/80 border-yellow-500 text-yellow-900;
+  }
+
+  .flag-info {
+    @apply bg-blue-50/80 border-blue-500 text-blue-900;
+  }
+}
+
+@layer utilities {
+  .scale-102 {
+    transform: scale(1.02);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite linear;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
 }
